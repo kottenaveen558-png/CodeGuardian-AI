@@ -23,11 +23,22 @@ class Settings(BaseSettings):
 
     github_token: str = ""
     github_api_base_url: str = "https://api.github.com"
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
 
     @field_validator("github_token", mode="before")
     @classmethod
     def normalize_github_token(cls, value: object) -> str:
         """Strip surrounding whitespace and quotes from the GitHub token."""
+        if not isinstance(value, str):
+            return ""
+
+        return value.strip().strip("\"'")
+
+    @field_validator("groq_api_key", mode="before")
+    @classmethod
+    def normalize_groq_api_key(cls, value: object) -> str:
+        """Strip surrounding whitespace and quotes from the Groq API key."""
         if not isinstance(value, str):
             return ""
 

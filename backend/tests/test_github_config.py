@@ -4,12 +4,15 @@ import unittest
 
 import httpx
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.services.github_service import GitHubService
 
 
 class TestSettings(unittest.TestCase):
     """Verify that application settings can be loaded from environment variables."""
+
+    def setUp(self) -> None:
+        get_settings.cache_clear()
 
     def test_settings_read_token_from_env(self) -> None:
         os.environ["GITHUB_TOKEN"] = "test-token"

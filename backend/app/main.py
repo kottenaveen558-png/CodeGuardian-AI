@@ -2,8 +2,10 @@
 
 from fastapi import FastAPI
 
+from app.api.ai import router as ai_router
 from app.api.github import router as github_router
 from app.api.health import router as health_router
+from app.api.review import router as review_router
 from app.core.logging import configure_logging
 
 # Logging is initialized once so all modules share consistent output.
@@ -19,3 +21,5 @@ app = FastAPI(
 # Include routers here so endpoints stay organized by responsibility.
 app.include_router(health_router)
 app.include_router(github_router)
+app.include_router(ai_router)
+app.include_router(review_router)
