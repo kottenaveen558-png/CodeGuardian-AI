@@ -1,11 +1,11 @@
-"""AI review service for generating structured code review feedback."""
+"""AI review service using Zyloo (OpenAI-compatible API)."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any, Protocol
 
-from groq import Groq
+from openai import OpenAI
 
 from app.core.config import get_settings
 
@@ -13,45 +13,60 @@ logger = logging.getLogger(__name__)
 
 
 class AIClient(Protocol):
-    """Protocol for an AI provider client so the service stays provider-agnostic."""
+    """Protocol for an AI provider client."""
 
+    @property
     def chat(self) -> Any:
-        """Return the chat interface used by the underlying AI provider."""
+        ...
 
 
 class AIReviewService:
-    """Generate AI-powered Markdown reviews for code changes.
-
-    The implementation is deliberately isolated behind a small interface so a
-    future provider such as OpenAI, Groq, or Claude can replace the current one
-    without changing the rest of the application.
-    """
+    """Generate AI-powered code reviews using Zyloo."""
 
     def __init__(self, client: AIClient | None = None) -> None:
         self.settings = get_settings()
-        self.client = client or Groq(api_key=self.settings.groq_api_key)
+
+        self.client = client or OpenAI(
+            api_key=self.settings.zyloo_api_key,
+            base_url=self.settings.zyloo_base_url,
+        )
 
     def review_code(self, prompt: str) -> str:
-        """Send a review prompt to the Groq API and return the Markdown response."""
-        if not self.settings.groq_api_key:
-            raise ValueError("Groq API key is not configured.")
+        """Send prompt to Zyloo and return AI review."""
+
+        if not self.settings.zyloo_api_key:
+            raise RuntimeError("ZYLOO_API_KEY_NOT_FOUND")
 
         try:
             response = self.client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model=self.settings.groq_model,
+                model=self.settings.zyloo_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
                 temperature=0.2,
+                max_tokens=400,
             )
-        except Exception as exc:  # pragma: no cover - exercised through runtime errors
-            logger.exception("Groq API request failed")
-            raise RuntimeError(f"Groq API request failed: {exc}") from exc
 
-        if not getattr(response, "choices", None):
-            raise RuntimeError("Groq API returned no choices.")
+        except Exception as exc:
+            logger.exception("Zyloo API request failed")
 
-        message = response.choices[0].message
-        content = getattr(message, "content", None)
+            print("========== ZYLOO ERROR ==========")
+            print(type(exc))
+            print(repr(exc))
+            print(str(exc))
+            print("=================================")
+
+            raise
+
+        if not response.choices:
+            raise RuntimeError("Empty response from Zyloo.")
+
+        content = response.choices[0].message.content
+
         if not content:
-            raise RuntimeError("Groq API returned an empty response.")
+            raise RuntimeError("Empty response from Zyloo.")
 
         return content

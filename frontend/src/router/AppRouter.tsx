@@ -1,27 +1,29 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import DashboardLayout from '../layouts/DashboardLayout'
-import MainLayout from '../layouts/MainLayout'
-import DashboardPage from '../pages/DashboardPage'
-import LandingPage from '../pages/LandingPage'
-import NotFoundPage from '../pages/NotFoundPage'
-import ReviewPage from '../pages/ReviewPage'
+import LandingPage from "../pages/LandingPage";
+import Dashboard from "../pages/Dashboard";
+import Repositories from "../pages/Repositories";
+import ReviewPage from "../pages/ReviewPage";
+import AIReviewPage from "../pages/AIReviewPage";
+import HistoryPage from "../pages/HistoryPage";
+import SettingsPage from "../pages/SettingsPage";
+import NotFound from "../pages/NotFound";
+import ReviewDetailsPage from "../pages/ReviewDetailsPage";
 
 export default function AppRouter() {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
+    <BrowserRouter>
+      <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/review" element={<ReviewPage />} />
-      </Route>
-
-      <Route path="/dashboard/*" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/review/*" element={<Navigate to="/review" replace />} />
-    </Routes>
-  )
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/repositories" element={<Repositories />} />
+        <Route path="/review/:repo" element={<ReviewPage />} />
+        <Route path="/ai-review/:repo/:pr" element={<AIReviewPage />} />
+        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/history/:id" element={<ReviewDetailsPage />}/>
+      </Routes>
+    </BrowserRouter>
+  );
 }
