@@ -10,6 +10,7 @@ import httpx
 from app.core.config import get_settings
 from app.core.exceptions import GitHubIntegrationError
 from app.schemas.github import (
+    ChangedFileResponse,
     GitHubRepositoryResponse,
     GitHubUserResponse,
     PullRequestResponse,
@@ -133,6 +134,49 @@ class GitHubService:
                 author=item["user"]["login"],
                 state=item["state"],
                 created_at=item["created_at"],
+            )
+            for item in payload
+        ]
+
+    async def get_pull_request_changed_files(
+        self,
+        owner: str,
+        repo: str,
+        pull_number: int,
+    ) -> list[ChangedFileResponse]:
+        """List changed files for a specific pull request."""
+        if not self.settings.github_token:
+            raise GitHubIntegrationError("GitHub token is not configured.", status_code=500)
+
+        try:
+            response = await self.client.get(
+                f"{self.base_url}/repos/{owner}/{repo}/pulls/{pull_number}/files",
+                headers=self.headers,
+                params={"per_page": 100},
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            logger.exception("GitHub pull request files request failed")
+            raise GitHubIntegrationError(
+                f"GitHub pull request files request failed: {exc.response.text}",
+                status_code=exc.response.status_code,
+            ) from exc
+        except httpx.RequestError as exc:
+            logger.exception("GitHub pull request files request could not be completed")
+            raise GitHubIntegrationError(
+                f"GitHub request failed: {str(exc)}",
+                status_code=502,
+            ) from exc
+
+        payload: list[dict[str, Any]] = response.json()
+        return [
+            ChangedFileResponse(
+                filename=item["filename"],
+                status=item.get("status", "unknown"),
+                additions=item.get("additions", 0),
+                deletions=item.get("deletions", 0),
+                total_changes=item.get("changes", 0),
+                patch=item.get("patch"),
             )
             for item in payload
         ]

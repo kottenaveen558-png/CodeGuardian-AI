@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.core.exceptions import GitHubIntegrationError
 from app.schemas.github import (
+    ChangedFileResponse,
     GitHubRepositoryResponse,
     GitHubUserResponse,
     PullRequestResponse,
@@ -44,6 +45,21 @@ async def get_repository_pull_requests(owner: str, repo: str) -> list[PullReques
     service = GitHubService()
     try:
         return await service.get_repository_pull_requests(owner, repo)
+    except GitHubIntegrationError as exc:
+        raise HTTPException(status_code=exc.status_code or 500, detail=str(exc)) from exc
+    finally:
+        await service.close()
+
+
+@router.get(
+    "/{owner}/{repo}/pull-requests/{pull_number}/files",
+    response_model=list[ChangedFileResponse],
+)
+async def get_pull_request_files(owner: str, repo: str, pull_number: int) -> list[ChangedFileResponse]:
+    """Return changed files for a specific pull request."""
+    service = GitHubService()
+    try:
+        return await service.get_pull_request_changed_files(owner, repo, pull_number)
     except GitHubIntegrationError as exc:
         raise HTTPException(status_code=exc.status_code or 500, detail=str(exc)) from exc
     finally:

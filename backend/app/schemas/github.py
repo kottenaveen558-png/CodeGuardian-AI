@@ -31,3 +31,14 @@ class PullRequestResponse(BaseModel):
     author: str = Field(..., description="Pull request author login")
     state: str = Field(..., description="Pull request state")
     created_at: str = Field(..., description="Pull request creation timestamp")
+
+
+class ChangedFileResponse(BaseModel):
+    """Serializable representation of a changed file in a pull request."""
+
+    filename: str = Field(..., description="Path of the changed file")
+    status: str = Field(..., description="File status such as added or modified")
+    additions: int = Field(..., description="Number of added lines")
+    deletions: int = Field(..., description="Number of deleted lines")
+    total_changes: int = Field(..., description="Total changed lines")
+    patch: str | None = Field(default=None, description="Diff snippet for the file")
