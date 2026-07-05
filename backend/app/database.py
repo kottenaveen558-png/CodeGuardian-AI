@@ -1,10 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = "mysql+pymysql://root:912153@localhost/codeguardian_ai"
+from app.core.config import get_settings
+
+settings = get_settings()
 
 engine = create_engine(
-    DATABASE_URL,
+    settings.database_url,
     echo=True,
 )
 

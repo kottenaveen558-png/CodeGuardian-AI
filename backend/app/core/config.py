@@ -15,6 +15,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Database
+    database_url: str = ""
+
     # GitHub Settings
     github_token: str = ""
     github_api_base_url: str = "https://api.github.com"
@@ -22,6 +25,13 @@ class Settings(BaseSettings):
     # Groq Settings
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: object) -> str:
+        if not isinstance(value, str):
+            return ""
+        return value.strip().strip("\"'")
 
     @field_validator("github_token", mode="before")
     @classmethod
