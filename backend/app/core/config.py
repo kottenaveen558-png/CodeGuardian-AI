@@ -15,13 +15,13 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # GitHub Settings
     github_token: str = ""
     github_api_base_url: str = "https://api.github.com"
 
-    # Zyloo Settings
-    zyloo_api_key: str = ""
-    zyloo_base_url: str = "https://api.zyloo.io/v1"
-    zyloo_model: str = "zyloo/claude-opus-4-7"
+    # Groq Settings
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
 
     @field_validator("github_token", mode="before")
     @classmethod
@@ -30,9 +30,9 @@ class Settings(BaseSettings):
             return ""
         return value.strip().strip("\"'")
 
-    @field_validator("zyloo_api_key", mode="before")
+    @field_validator("groq_api_key", mode="before")
     @classmethod
-    def normalize_zyloo_api_key(cls, value: object) -> str:
+    def normalize_groq_api_key(cls, value: object) -> str:
         if not isinstance(value, str):
             return ""
         return value.strip().strip("\"'")

@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
-    <section className="relative overflow-hidden">
+    <section id="home" className="relative overflow-hidden">
       <div className="mx-auto flex min-h-[85vh] max-w-7xl flex-col items-center justify-center px-6 text-center">
 
         {/* Badge */}
@@ -27,11 +31,22 @@ export default function Hero() {
         {/* Buttons */}
         <div className="mt-10 flex flex-wrap justify-center gap-5">
 
-          <button className="rounded-xl bg-blue-600 px-8 py-4 font-semibold transition hover:bg-blue-700">
+          <button
+            onClick={() => navigate("/repositories")}
+            className="rounded-xl bg-blue-600 px-8 py-4 font-semibold transition hover:bg-blue-700"
+          >
             Start Reviewing
           </button>
 
-          <button className="rounded-xl border border-slate-700 px-8 py-4 font-semibold transition hover:border-blue-500">
+          <button
+            onClick={() =>
+              window.open(
+                "https://github.com/kottenaveen558-png/CodeGuardian-AI",
+                "_blank"
+              )
+            }
+            className="rounded-xl border border-slate-700 px-8 py-4 font-semibold transition hover:border-blue-500"
+          >
             View GitHub
           </button>
 

@@ -1,11 +1,11 @@
-"""AI review service using Zyloo (OpenAI-compatible API)."""
+"""AI review service using Groq."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any, Protocol
 
-from openai import OpenAI
+from groq import Groq
 
 from app.core.config import get_settings
 
@@ -21,25 +21,24 @@ class AIClient(Protocol):
 
 
 class AIReviewService:
-    """Generate AI-powered code reviews using Zyloo."""
+    """Generate AI-powered code reviews using Groq."""
 
     def __init__(self, client: AIClient | None = None) -> None:
         self.settings = get_settings()
 
-        self.client = client or OpenAI(
-            api_key=self.settings.zyloo_api_key,
-            base_url=self.settings.zyloo_base_url,
+        self.client = client or Groq(
+            api_key=self.settings.groq_api_key,
         )
 
     def review_code(self, prompt: str) -> str:
-        """Send prompt to Zyloo and return AI review."""
+        """Send prompt to Groq and return AI review."""
 
-        if not self.settings.zyloo_api_key:
-            raise RuntimeError("ZYLOO_API_KEY_NOT_FOUND")
+        if not self.settings.groq_api_key:
+            raise RuntimeError("GROQ_API_KEY_NOT_FOUND")
 
         try:
             response = self.client.chat.completions.create(
-                model=self.settings.zyloo_model,
+                model=self.settings.groq_model,
                 messages=[
                     {
                         "role": "user",
@@ -51,22 +50,22 @@ class AIReviewService:
             )
 
         except Exception as exc:
-            logger.exception("Zyloo API request failed")
+            logger.exception("Groq API request failed")
 
-            print("========== ZYLOO ERROR ==========")
+            print("========== GROQ ERROR ==========")
             print(type(exc))
             print(repr(exc))
             print(str(exc))
-            print("=================================")
+            print("================================")
 
             raise
 
         if not response.choices:
-            raise RuntimeError("Empty response from Zyloo.")
+            raise RuntimeError("Empty response from Groq.")
 
         content = response.choices[0].message.content
 
         if not content:
-            raise RuntimeError("Empty response from Zyloo.")
+            raise RuntimeError("Empty response from Groq.")
 
         return content

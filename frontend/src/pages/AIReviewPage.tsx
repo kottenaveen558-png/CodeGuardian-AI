@@ -9,6 +9,7 @@ export default function AIReviewPage() {
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   async function handleReview() {
     if (!repo || !pr) {
@@ -20,6 +21,7 @@ export default function AIReviewPage() {
       setLoading(true);
       setError("");
       setReview("");
+      setSuccess(false);
 
       const data = await reviewPullRequest(
         "kottenaveen558-png",
@@ -29,6 +31,7 @@ export default function AIReviewPage() {
 
       if (data.length > 0) {
         setReview(data[0].review);
+        setSuccess(true);
       } else {
         setError("No review returned.");
       }
@@ -76,20 +79,54 @@ export default function AIReviewPage() {
             disabled={loading}
             className="mt-8 rounded-lg bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Analyzing..." : "Analyze Pull Request"}
+            {loading ? "Generating AI Review..." : "Analyze Pull Request"}
           </button>
 
         </div>
 
+        {loading && (
+          <div className="mt-8 rounded-xl border border-blue-700 bg-slate-900 p-8 text-center">
+
+            <div className="text-6xl">
+              🤖
+            </div>
+
+            <h2 className="mt-4 text-3xl font-bold text-blue-400">
+              AI is Reviewing Your Code
+            </h2>
+
+            <p className="mt-4 text-slate-400">
+              Please wait while CodeGuardian analyzes your pull request...
+            </p>
+
+            <div className="mt-8 h-3 w-full overflow-hidden rounded-full bg-slate-700">
+              <div className="h-full w-1/2 animate-pulse rounded-full bg-blue-500"></div>
+            </div>
+
+          </div>
+        )}
+
+        {success && (
+          <div className="mt-8 rounded-xl border border-green-600 bg-green-950 p-5">
+
+            <h3 className="text-xl font-bold text-green-400">
+              ✅ Review Generated Successfully
+            </h3>
+
+          </div>
+        )}
+
         {error && (
           <div className="mt-8 rounded-xl border border-red-600 bg-red-950 p-6">
+
             <h3 className="text-xl font-bold text-red-400">
-              Error
+              ❌ Error
             </h3>
 
             <p className="mt-3">
               {error}
             </p>
+
           </div>
         )}
 
@@ -106,6 +143,7 @@ export default function AIReviewPage() {
 
           </div>
         )}
+
       </div>
     </DashboardLayout>
   );
