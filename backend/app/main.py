@@ -7,29 +7,32 @@ from app.api.ai import router as ai_router
 from app.api.github import router as github_router
 from app.api.health import router as health_router
 from app.api.review import router as review_router
-from app.core.logging import configure_logging
-from app.init_db import init_db
 from app.api.history import router as history_router
 from app.api.dashboard import router as dashboard_router
 
-# Logging is initialized once so all modules share consistent output.
+from app.core.logging import configure_logging
+from app.init_db import init_db
+
+# Configure logging
 configure_logging()
 
 # Initialize database tables
 init_db()
 
-# The application factory keeps the entry point clean and easy to extend.
+# Create FastAPI application
 app = FastAPI(
     title="Code Guardian AI",
     description="A modular FastAPI backend for AI-powered code review services.",
     version="0.1.0",
 )
 
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://code-guardian-ai-rose.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -38,7 +41,7 @@ app.add_middleware(
 
 print("✅ CORS middleware loaded")
 
-# Include routers here so endpoints stay organized by responsibility.
+# Register API routers
 app.include_router(health_router)
 app.include_router(github_router)
 app.include_router(ai_router)
